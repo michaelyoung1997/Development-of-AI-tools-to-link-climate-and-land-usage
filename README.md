@@ -18,29 +18,29 @@ Uses aforementioned dataframe to predict air temperature readings using various 
 
 *Initialize model* 
 
-model=my_model(dataframe, axis=1), target)
+-model=my_model(dataframe, axis=1), target)
 
-dataframe=lst15 or lst07 
-target='Feb_2015_LST', 'Jul_2015_LST', 'Nov_2007_LST' (or any other column from the targets dataframe) 
+-dataframe=lst15 or lst07 
+-target='Feb_2015_LST', 'Jul_2015_LST', 'Nov_2007_LST' (or any other column from the targets dataframe) 
 
 *Perform Regression* 
 
-model.regression(method, poly, features)
+-model.regression(method, poly, features)
 
-method='boost', 'bag' or 'lasso' 
-poly= 1 or 2 
-features=features to perform regression with
+-method='boost', 'bag' or 'lasso' 
+-poly= 1 or 2 
+-features=features to perform regression with
 
 *Generate Residuals*
 
-model.residuals(binary=True)
+-model.residuals(binary=True)
 
 *Classify Residuals*
 
-model.classify_residuals(classifier='xgboost', poly=2) 
+-model.classify_residuals(classifier='xgboost', poly=2) 
 
-classifier='nn', 'xgboost', 'rf'
+-classifier='nn', 'xgboost', 'rf'
 
 *Generate table of feature importances and correlations*
 
-frame=model.importances() 
+-frame=model.importances() 
