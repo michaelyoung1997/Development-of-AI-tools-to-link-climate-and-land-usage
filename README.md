@@ -3,6 +3,8 @@
 This repository contains 4 Python notebooks as supplementary material for the submission of my master's dissertation as part of the MiSCADA course. 
 
 Each notebook requires the assignment of a path variable which contains a string of the filepath to the Data folder. 
+
+
 **(Air Temperature) Data Preparation**
 Generates dataframes from Met Office weather station monthly readings, altitude data sourced from Google Earth Engine and UKCEH land cover map
 
