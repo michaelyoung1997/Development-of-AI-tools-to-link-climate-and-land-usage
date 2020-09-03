@@ -1,0 +1,88 @@
+Project Log
+
+02/05: Generated a pandas dataframe containing the monthly average temperatures recorded at each station plus the coordinates. After having trouble importing the excel files, wrote VBA code to split the monthly average dataset into a separate file for each year and load each one in separately. 
+
+03/05: Downloaded raster file of  land cover from digimap. 
+
+06/05: Written code to skim through the percentage target class tiff files for 2007 LC map, aggregate classes and compile into a pandas dataframe. I did this from the percentage target rather than pre aggregated files as I had an error importing thee files, it seems they have been truncated. The sum of the percentages doesn’t always add up for each km square which may or may not be an issue. 
+
+07/05: I have done as above to compile a dataframe for 2000 LC map from the ascii files. I was able to use the pre aggregated files for this. The percentages in each row seem to add up to 100. I also managed to find a way to import the 2007 LC map pre aggregated files using a different package to import the tiff. THis showed agreement with the initial 2007 dataframe but not with the 2000 LC map. The documentation states that this could be due to improvements in the accuracy of the satellite measurements rather than change in LC/errors. 
+
+12/05: Have discovered that land cover maps were upside down … After removing offshore stations, 2007 LC map now has roughly 660 onshore sites.  Have worked out how to obtain altitude data using Earth Engine for the onshore locations. However, the list of returned altitudes is shorter than the onshore locations implying that the Earth Engine dataset ‘thinks’ some of the onshore locations are not offshore. 
+
+18/05: Have obtained the altitude of each onshore station and so have a final list of the onshore stations, albeit through a rather arduous approach - passing in the coordinates of each station and returning the altitude if available and if not available, assume not onshore. Although not computationally efficient, this seems to be the only approach to objectively identify which stations are and aren’t in the dataset. This has classified 661 of the 749 original stations as onshore (after removing stations with no land cover info and no altitude info). Have tried creating a dataframe with altitude data for whole UK but have encountered CRS problems with this too. Instead, test data altitude can be be created on an adhoc basis (input coordinates and retrieve altitude). 
+
+19/05: After meeting with Fred, have started exploring the data further through sklearn ML tools. 
+
+21/05: Created predictive model based on mean residuals of monthly average temperature. This simplistic model didn’t capture much of the variation in the data. 
+
+22/05: Using curve fit, I have fit a sin curve to all of the monthly temperature readings. I then use a predictive model to predict the amplitude and intercept of this sin curve. 
+
+23/05: Trying to improve accuracy of these predictions. I have tried predicting by bagging 100 weak LASSO predictors though the results are not repeatable. The intercepts can be predicted with a higher accuracy of around 0.7 while amplitude can only be predicted with around 0.4. 
+The prediction accuracies are not repeatable (without a random seed) and seem to vary a lot. 
+
+27/05: I have discovered that rather than an instability with the predictive algorithm, the instability stems from the splitting of the data into training and testing, suggesting that there are some ‘dodgy’ datapoints which I shall try and identify. 
+
+02/06: Have identified the dodgy stations which upon removal, grants improved and more consistent results. 
+
+05/06: Predicted temperature using spatial information and subtracted from true data. Trying to classify polarity of residual using land cover data. This is equivalent to predicting whether the land usage contributes to the temperature being warmer or colder than we would expect given the coordinates. Unfortunately, after trying multiple architectures and using a gaussian blur kernel to incorporate surrounding land, I can’t get a classification accuracy above 60%. Whatsmore, predicting temperature using only spatial information doesn’t worsen the coefficient of determination score. 
+
+06/06: Have tried using gaussian blur to incorporate surrounding land cover as well as the 2015 land cover map but still cannot accurately classify the polarity of the residual. 
+
+08/06: After being given the station soil data, I can now classify the polarity of the residual to an accuracy of about 66%. 
+
+12/06: Having trouble improving the accuracy of the binary classification. Have created a new variable, ‘inland’ which is a measure of the distance from the coastline. I did this by applying a laplace edge filter to the UK land raster and thresholding to get a coastal outline mask and calculating the distance of each point from the edge. Unfortunately, this had little effect on the accuracy. 
+
+14/06: Still trying to improve accuracy. Have spoken to Daniel Maitre (MiSCADA Machine Learning lecturer) who confirmed my suspicion of the model overfitting. He said that it is likely that the small residuals are getting lost in the noise of the dataset. He also suggested that my dataset is too small which is what leads overfitting so I should try data augmentation techniques to expand my dataset. 
+
+
+
+ 19/06: Have accepted dataset is too small for any meaningful deep learning model. Fred has given me daily/hour temperature datasets for the met stations for 2003 but this has a LOT of missing data- only about 600 stations have ANY data in this timespan.I have created a dataset of 2000 random locations in the UK and am currently learning how to use google earth engine in order to compile a LST dataset. I have set a soft deadline of end of July to finish experimentation to allow all of August for report writing. 
+Hopefully I will have time to:
+a) Investigate the link between LST and air temperature
+b) Create a similar predictive model from air temperature to LST 
+
+
+21/06: Have created earth engine javascript file to obtain the LST at each of the stations but due to EE restrictions, this may only be done for each day at a time. 
+The 2003 temperature dataset contains a LOT of missing data - most of the stations only have one reading each day whereas some (roughly 200) have hourly readings. I can predict the the mean/avreage temperature in each month with 80% score and the standard deviation with a 40% score. 
+
+22/06: Using a gradient boosting regressor, can predict standard deviation of hourly temperature readings with accuracy of roughly 70%. Fred suggested that max-min/2 would be a better metric for variation but this is easily distorted by outliers while std stays more stable.  
+
+
+25/06: Have now imported 2007 hourly air temperatures. Again, can get very good prediction accuracies for mean (roughly 90%) and std (roughly 60%) though only 250 stations or so have hourly readings (as opposed to daily).With regards to surface temperature, have finally found a way to download the required data in a usable format from GEE. 
+FOr standard deviation, the two most ‘important features’ were Northing and Coastal. 
+For mean, Northing and Altitude. 
+In July, Easting is about 5 times more ‘important’ at predicting than in February.  (according to gradient booster.feature_importances- ‘The importance of a feature is computed as the (normalized) total reduction of the criterion brought by that feature. It is also known as the Gini importance.’) 
+
+01/07: Have written an algorithm which performs gini permutations to get the feature importances of a fitted neural network prediction model. Have also stratified sampled 10k random points to add to the dataset and was getting very good binary accuracies for the residual. Have since discovered that I was using the original LST to predict so this was essentially a circular model so meaningless. Upon removing these features, we are back to a binary accuracy of 57% … 
+
+03/07 Have introduced gaussian blur to LST and with a larger blur area/sd. This increased the binary accuracy to about 63%, a significant improvement! 
+
+05/07: After using QGIS to broadcast onto BNG, have imported the altitude raster dataset and performed sobel filtering (but no thresholding) to capture the topography of the UK with the hope of identifying cold pockets. 
+This improved the accuracy to about 64%. More research will be done into how to better capture the topography. 
+
+06/07: After using QGIS to rasterise the soil data shape file, have imported England and Scotland soil cover data. 
+
+09/07: Have developed new way to identify frost hollows: subtract altitude from gaussian blur of altitude to identify areas that are lower than their surroundings. This seems to have improved performance. 
+
+13/07: One last crack at Air Temperature: I have been reading about different ways to generate new synthetic training data. This is a trivial problem for image/CV based ML models as new images can be generated by augmenting current images, though it isn’t as simple for tabular/structured data. One person online suggested duplicating current training data and add statistical noise. This wouldn’t add any new information to the model though. I came across generative adversarial networks. Often used for image based models, they can be used to generate new images similar to the ones supplied. They work by having two contesting neural networks. One generative networks creates new datapoints and tries to deceive a discriminatory network which tries to identify each data point as from the original distribution (or not). The TGAN python package implements this for tabular data. 
+
+15/07 I tried using the TGAN package but it didn’t improve the performance. 
+
+17/07 Have been Kriging spatial analysis to generate semivariogram models for altitude and temperature. I have found that temperature has a range of roughly 50km and altitude has a range of roughly 100km. This could mean that the gaussian blur should have a range of about 50km. 
+
+19/07 I have developed an automated system to repeatedly generate models with different parameters and append their performance to a spreadsheet. The parameters are: dropout level, land cover gaussian blur size, topographic blur size. 
+
+23/07 I am becoming sceptical of the gini performances. It says that onehot features from a crop map I found from GEE are the most important features. 
+
+24/07: I have found that gini importance favours the importance of low cardinality features (i.e. one hot features). I have removed crop cover from the dataframes. 
+
+25/07: Instead of random noise, I have now prescribed gini feature importances to permute the input feature vector. 
+26/07: To give an idea of the polarity of each feature importance, the generated dataframe now produces the correlation of each feature with the target temperature. 
+
+
+******** STARTED WRITING REPORT *******************
+
+
+
+
