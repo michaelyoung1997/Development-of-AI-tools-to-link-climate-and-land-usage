@@ -49,5 +49,5 @@ Uses aforementioned dataframe to predict air temperature readings using various 
 -frame=model.importances() 
 
 **Kriging Spatial Analysis** 
--Generates semivariograms for altitude and LST. 
--Uses a 25gb runtime, as opposed to the regular 12gb which runs out of memory
+Generates semivariograms for altitude and LST. 
+Uses a 25gb runtime, as opposed to the regular 12gb which runs out of memory
