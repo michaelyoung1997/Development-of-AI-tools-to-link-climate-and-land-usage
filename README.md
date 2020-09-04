@@ -1,6 +1,6 @@
 # Development-of-AI-tools-to-link-climate-and-land-usage
 
-This repository contains 4 Python notebooks as supplementary material for the submission of my master's dissertation as part of the MiSCADA course. 
+This repository contains 5 Python notebooks as supplementary material for the submission of my master's dissertation as part of the MiSCADA course. 
 
 Each notebook requires the assignment of a path variable which contains a string of the filepath to the Data folder. 
 
@@ -47,3 +47,7 @@ Uses aforementioned dataframe to predict air temperature readings using various 
 *Generate table of feature importances and correlations*
 
 -frame=model.importances() 
+
+**Kriging Spatial Analysis** 
+-Generates semivariograms for altitude and LST. 
+-Uses a 25gb runtime, as opposed to the regular 12gb which runs out of memory
